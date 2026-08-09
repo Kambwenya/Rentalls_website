@@ -183,7 +183,7 @@ the backend automatically.
      client ID → Application type: **Web application**.
   2. Under **Authorized JavaScript origins**, add
      `http://localhost:5173` (local dev) and your production frontend
-     URL (e.g. `https://rentalls.vercel.app`).
+     URL (e.g. `https://rentalls-website.vercel.app`).
   3. Copy the generated Client ID into **both**:
      - `backend/.env` → `GOOGLE_CLIENT_ID=...`
      - `frontend/.env` → `VITE_GOOGLE_CLIENT_ID=...` (same value)
