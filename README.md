@@ -211,6 +211,46 @@ the backend automatically.
 Two Vercel projects, two `vercel.json` files — mixing them up is the most
 common source of deploy errors here. Before deploying either project:
 
+### Backend production environment variables for Vercel
+
+Use the backend project settings below when deploying the API:
+
+- Root Directory: `backend`
+- Framework Preset: `Other`
+- Build Command: leave empty
+- Output Directory: leave empty
+- Install Command: `npm install`
+
+Required Vercel environment variables:
+
+- `MONGODB_URI` → your MongoDB Atlas production connection string, for example `mongodb+srv://murithichambers_db_user:67wW9vGBS9SIMHM7@rentalls.kai3wfl.mongodb.net`
+- `JWT_SECRET` → a long random string, for example `ab3d134c0e45963270bd410df6b3c1c887d6731c794ff23c696e20ce24952e49`
+- `JWT_EXPIRES_IN` → `30d`
+- `APP_URL` → your frontend production URL, for example `https://rentalls-website.vercel.app`
+- `CORS_ORIGIN` → your frontend production URL, for example `https://rentalls-website.vercel.app`
+
+Optional:
+
+- `GOOGLE_CLIENT_ID`
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD` (only for first-time seeding)
+
+A ready-to-copy template is available at [backend/.env.production.example](backend/.env.production.example) and [backend/VERCEL_PRODUCTION_SETUP.md](backend/VERCEL_PRODUCTION_SETUP.md).
+
+### Frontend production environment variables for Vercel
+
+For the frontend project:
+
+- Root Directory: `frontend`
+- Framework Preset: `Vite`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
+Required Vercel environment variables:
+
+- `VITE_API_URL` → your deployed backend URL, for example `https://your-backend-domain.vercel.app`
+- `VITE_GOOGLE_CLIENT_ID` → the same value as `GOOGLE_CLIENT_ID` in the backend project
+
 1. **Root Directory is set correctly.** Project → Settings → General →
    Root Directory should be `frontend` for the frontend project and
    `backend` for the backend project — never blank/repo-root, since
