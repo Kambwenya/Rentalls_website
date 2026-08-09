@@ -9,7 +9,7 @@ if (!MONGODB_URI) {
 // Cache the connection across serverless function invocations (important on Vercel)
 let cached = global._mongoose;
 if (!cached) {
-  cached = global._mongoose = { conn: null, promise: null };
+  cached = global._mongoose = { conn: null, promise: null, error: null };
 }
 
 export async function connectDB() {
@@ -28,11 +28,26 @@ export async function connectDB() {
         // on this warm instance fails forever, even after a transient
         // network blip or a mid-flight env var fix.
         cached.promise = null;
+        cached.error = err;
         throw err;
       });
   }
   cached.conn = await cached.promise;
+  cached.error = null;
   return cached.conn;
+}
+
+export function getDatabaseReadFallback(rules) {
+  const unavailable = !MONGODB_URI || !cached.conn || Boolean(cached.error);
+  if (!unavailable) {
+    return { status: null, payload: null };
+  }
+
+  if (rules?.publicRead) {
+    return { status: 200, payload: [] };
+  }
+
+  return { status: 503, payload: { error: 'Database unavailable' } };
 }
 
 export default connectDB;

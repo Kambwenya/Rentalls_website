@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getModel } from '../lib/entityModels.js';
 import { getRules, checkExtraOwnership } from '../lib/entityRules.js';
 import { attachUser, requireAuth } from '../lib/auth.js';
+import { getDatabaseReadFallback } from '../lib/db.js';
 import User from '../models/User.js';
 import Seller from '../models/Seller.js';
 
@@ -62,6 +63,11 @@ router.get('/:entity', async (req, res) => {
   try {
     const user = await currentUser(req);
     const { rules, Model } = req;
+    const fallback = getDatabaseReadFallback(rules);
+
+    if (fallback.status) {
+      return res.status(fallback.status).json(fallback.payload);
+    }
 
     if (rules.adminOnly && (!user || user.role !== 'admin')) {
       return res.status(403).json({ error: 'Admin access required' });
@@ -104,6 +110,12 @@ router.post('/:entity', requireAuth, async (req, res) => {
   try {
     const user = await currentUser(req);
     const { rules, Model } = req;
+    const fallback = getDatabaseReadFallback(rules);
+
+    if (fallback.status) {
+      return res.status(fallback.status).json(fallback.payload);
+    }
+
     if (rules.adminOnly && user?.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }
@@ -127,6 +139,12 @@ router.put('/:entity/:id', requireAuth, async (req, res) => {
   try {
     const user = await currentUser(req);
     const { rules, Model } = req;
+    const fallback = getDatabaseReadFallback(rules);
+
+    if (fallback.status) {
+      return res.status(fallback.status).json(fallback.payload);
+    }
+
     const existing = await Model.findById(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
 
@@ -164,6 +182,12 @@ router.delete('/:entity/:id', requireAuth, async (req, res) => {
   try {
     const user = await currentUser(req);
     const { rules, Model } = req;
+    const fallback = getDatabaseReadFallback(rules);
+
+    if (fallback.status) {
+      return res.status(fallback.status).json(fallback.payload);
+    }
+
     const existing = await Model.findById(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
 
